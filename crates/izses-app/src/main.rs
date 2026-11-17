@@ -23,7 +23,7 @@ fn main() -> eframe::Result<()> {
             rfd::MessageDialog::new()
                 .set_level(rfd::MessageLevel::Error)
                 .set_title("İZSES başlatılamadı")
-                .set_description(&format!(
+                .set_description(format!(
                     "Uygulama başlatılırken bir sorun oluştu:\n\n{e}\n\n\
                      Veri klasörünüzün erişilebilir olduğundan emin olun."
                 ))

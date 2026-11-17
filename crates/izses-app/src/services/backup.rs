@@ -11,7 +11,7 @@ use std::path::{Path, PathBuf};
 
 use izses_core::audit::{ActionKind, AuditEntry};
 use izses_core::error::{CoreError, CoreResult};
-use izses_core::investigation::{SubDir, StorageRoot};
+use izses_core::investigation::{StorageRoot, SubDir};
 use izses_core::model::Id;
 use izses_core::store::Store;
 
@@ -54,7 +54,10 @@ pub fn backup_investigation(
         zip::write::FileOptions::default().compression_method(zip::CompressionMethod::Deflated);
 
     let mut file_count = 0usize;
-    for entry in walkdir::WalkDir::new(&inv_dir).into_iter().filter_map(Result::ok) {
+    for entry in walkdir::WalkDir::new(&inv_dir)
+        .into_iter()
+        .filter_map(Result::ok)
+    {
         if !entry.file_type().is_file() {
             continue;
         }
@@ -107,11 +110,7 @@ pub fn backup_investigation(
 ///
 /// Depolama anahtarı çakışırsa sonuna sayı eklenir. Geri yüklenen inceleme
 /// yeni bir kimlik alır; böylece mevcut inceleme üzerine yazılmaz.
-pub fn restore_backup(
-    store: &Store,
-    root: &StorageRoot,
-    archive: &Path,
-) -> CoreResult<Id> {
+pub fn restore_backup(store: &Store, root: &StorageRoot, archive: &Path) -> CoreResult<Id> {
     let file = std::fs::File::open(archive)?;
     let mut zip = zip::ZipArchive::new(file)
         .map_err(|e| CoreError::invalid(format!("yedek arşivi açılamadı: {e}")))?;
@@ -143,7 +142,9 @@ pub fn restore_backup(
         key = format!("{}-{suffix}", manifest.storage_key);
         suffix += 1;
         if suffix > 1000 {
-            return Err(CoreError::invalid("benzersiz depolama anahtarı üretilemedi"));
+            return Err(CoreError::invalid(
+                "benzersiz depolama anahtarı üretilemedi",
+            ));
         }
     }
 
@@ -403,9 +404,7 @@ mod tests {
 
         // Dosya içeriği gerçekten geri yüklenmeli.
         let key2 = restored.storage_key();
-        let restored_file = root
-            .sub_dir(&key2, SubDir::OriginalFiles)
-            .join("a.wav");
+        let restored_file = root.sub_dir(&key2, SubDir::OriginalFiles).join("a.wav");
         assert!(restored_file.is_file());
         assert_eq!(std::fs::read(&restored_file).unwrap(), b"ses verisi");
     }

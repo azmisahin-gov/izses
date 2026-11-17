@@ -76,7 +76,10 @@ fn mandatory_acceptance_scenario() {
     ];
 
     let session = create_investigation(&store, &root, inv).unwrap();
-    assert_eq!(session.investigation.status, InvestigationStatus::InProgress);
+    assert_eq!(
+        session.investigation.status,
+        InvestigationStatus::InProgress
+    );
     assert!(root.investigation_exists(&session.storage_key));
 
     // ---- 2. Delil kaynağı: sentetik klasör ----
@@ -120,7 +123,11 @@ fn mandatory_acceptance_scenario() {
             &file.relative_path,
         )
         .unwrap();
-        assert!(outcome.verified, "aktarım doğrulanmadı: {}", outcome.file_name);
+        assert!(
+            outcome.verified,
+            "aktarım doğrulanmadı: {}",
+            outcome.file_name
+        );
         assert_eq!(outcome.source_sha256, outcome.copy_sha256);
         assert!(file.source_path.is_file());
     }
@@ -217,7 +224,10 @@ fn mandatory_acceptance_scenario() {
         }
     }
     let pairs_ref: Vec<(&izses_core::inventory::EvidenceFile, &[TranscriptSegment])> =
-        transcript_pairs.iter().map(|(f, s)| (f, s.as_slice())).collect();
+        transcript_pairs
+            .iter()
+            .map(|(f, s)| (f, s.as_slice()))
+            .collect();
 
     let report_input = izses_report::ReportInput {
         investigation: &session.investigation,
@@ -280,10 +290,7 @@ fn mandatory_acceptance_scenario() {
     let segs = store2.list_segments(&reopened.transcripts[0].id).unwrap();
     assert_eq!(segs.len(), 3);
     let edited = segs.iter().find(|s| s.is_edited()).unwrap();
-    assert_eq!(
-        edited.effective_text(),
-        "Merhaba, nasılsınız? (düzeltildi)"
-    );
+    assert_eq!(edited.effective_text(), "Merhaba, nasılsınız? (düzeltildi)");
     assert_eq!(edited.speaker.as_deref(), Some("Konuşmacı 1"));
     assert!(segs.iter().any(|s| s.flags.unclear));
 

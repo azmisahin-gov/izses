@@ -313,9 +313,9 @@ impl Store {
     }
 
     pub fn list_files_by_source(&self, source_id: &Id) -> CoreResult<Vec<EvidenceFile>> {
-        let mut stmt = self.conn().prepare(
-            "SELECT * FROM evidence_files WHERE source_id = ?1 ORDER BY relative_path",
-        )?;
+        let mut stmt = self
+            .conn()
+            .prepare("SELECT * FROM evidence_files WHERE source_id = ?1 ORDER BY relative_path")?;
         let rows = stmt.query_map(params![source_id.0], file_from_row)?;
         let mut out = Vec::new();
         for r in rows {
@@ -327,7 +327,10 @@ impl Store {
     /// Yarım kalmış aktarımları (durumu `in_progress` olan dosyalar) bulur.
     ///
     /// Uygulama ani kapandığında bu kayıtlar kurtarma için kullanılır.
-    pub fn find_incomplete_acquisitions(&self, investigation_id: &Id) -> CoreResult<Vec<EvidenceFile>> {
+    pub fn find_incomplete_acquisitions(
+        &self,
+        investigation_id: &Id,
+    ) -> CoreResult<Vec<EvidenceFile>> {
         let mut stmt = self.conn().prepare(
             "SELECT * FROM evidence_files WHERE investigation_id = ?1 AND verification = 'in_progress' ORDER BY relative_path",
         )?;
@@ -425,7 +428,9 @@ mod tests {
         let (store, inv) = setup();
         let src = EvidenceSource::new(&inv.id, "USB", "/tmp/usb", DeviceKind::Removable, 1);
         store.insert_source(&src).unwrap();
-        store.insert_file(&sample_file(&inv, &src, "a.wav")).unwrap();
+        store
+            .insert_file(&sample_file(&inv, &src, "a.wav"))
+            .unwrap();
 
         let mut other = Investigation::new();
         other.case_number = "2026/999".into();
@@ -498,7 +503,9 @@ mod tests {
         let (store, inv) = setup();
         let src = EvidenceSource::new(&inv.id, "USB", "/tmp/usb", DeviceKind::Removable, 1);
         store.insert_source(&src).unwrap();
-        store.insert_file(&sample_file(&inv, &src, "a.wav")).unwrap();
+        store
+            .insert_file(&sample_file(&inv, &src, "a.wav"))
+            .unwrap();
         store.delete_source(&src.id).unwrap();
         assert!(store.list_files(&inv.id).unwrap().is_empty());
     }
@@ -509,7 +516,9 @@ mod tests {
         let src = EvidenceSource::new(&inv.id, "USB", "/tmp/usb", DeviceKind::Removable, 1);
         store.insert_source(&src).unwrap();
         assert!(!store.source_has_relative(&src.id, "a.wav").unwrap());
-        store.insert_file(&sample_file(&inv, &src, "a.wav")).unwrap();
+        store
+            .insert_file(&sample_file(&inv, &src, "a.wav"))
+            .unwrap();
         assert!(store.source_has_relative(&src.id, "a.wav").unwrap());
     }
 }

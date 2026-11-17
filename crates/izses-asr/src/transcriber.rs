@@ -194,9 +194,8 @@ impl TranscriptEngine {
         }
 
         let config: Config = serde_json::from_str(
-            &std::fs::read_to_string(&config_path).map_err(|e| {
-                CoreError::invalid(format!("yapılandırma okunamadı: {e}"))
-            })?,
+            &std::fs::read_to_string(&config_path)
+                .map_err(|e| CoreError::invalid(format!("yapılandırma okunamadı: {e}")))?,
         )
         .map_err(|e| CoreError::invalid(format!("yapılandırma geçersiz: {e}")))?;
 
@@ -206,7 +205,7 @@ impl TranscriptEngine {
         let (device, compute) = select_device(prefer_gpu);
 
         let vb = unsafe {
-            VarBuilder::from_mmaped_safetensors(&[weights.clone()], m::DTYPE, &device)
+            VarBuilder::from_mmaped_safetensors(std::slice::from_ref(&weights), m::DTYPE, &device)
                 .map_err(|e| CoreError::invalid(format!("model ağırlıkları yüklenemedi: {e}")))?
         };
         let model = m::model::Whisper::load(&vb, config.clone())
@@ -222,9 +221,7 @@ impl TranscriptEngine {
             .ok_or_else(|| CoreError::invalid("konuşma yok tokeni bulunamadı"))?;
 
         let language_token = token_id(&tokenizer, &format!("<|{}|>", cfg.language))
-            .map_err(|_| {
-                CoreError::invalid(format!("dil desteklenmiyor: {}", cfg.language))
-            })?;
+            .map_err(|_| CoreError::invalid(format!("dil desteklenmiyor: {}", cfg.language)))?;
 
         let suppress: Vec<f32> = (0..config.vocab_size as u32)
             .map(|i| {
@@ -286,7 +283,7 @@ impl TranscriptEngine {
             return 1;
         }
         let per = mel::SAMPLES_PER_CHUNK;
-        ((sample_count + per - 1) / per).max(1) as u32
+        sample_count.div_ceil(per).max(1) as u32
     }
 
     /// Tek bir 30 saniyelik parçayı çözer.
@@ -306,12 +303,8 @@ impl TranscriptEngine {
         if frames == 0 {
             return Ok(Vec::new());
         }
-        let mel_tensor = Tensor::from_vec(
-            mel_values,
-            (1, self.num_mel_bins, frames),
-            &self.device,
-        )
-        .map_err(|e| CoreError::invalid(format!("mel tensörü: {e}")))?;
+        let mel_tensor = Tensor::from_vec(mel_values, (1, self.num_mel_bins, frames), &self.device)
+            .map_err(|e| CoreError::invalid(format!("mel tensörü: {e}")))?;
 
         self.run_on_mel(&mel_tensor, chunk_start_ms)
     }
@@ -330,8 +323,7 @@ impl TranscriptEngine {
             let mel_segment = mel
                 .narrow(2, seek, segment_size)
                 .map_err(|e| CoreError::invalid(format!("mel dilimi: {e}")))?;
-            let segment_duration_s =
-                (segment_size * m::HOP_LENGTH) as f64 / m::SAMPLE_RATE as f64;
+            let segment_duration_s = (segment_size * m::HOP_LENGTH) as f64 / m::SAMPLE_RATE as f64;
             seek += segment_size;
 
             let dr = self.decode_with_fallback(&mel_segment)?;
@@ -378,9 +370,9 @@ impl TranscriptEngine {
         let mut prev_ts_s: f32 = 0.0;
 
         let flush = |pending: &mut Vec<u32>,
-                         start_s: f32,
-                         end_s: f32,
-                         out: &mut Vec<SegmentData>|
+                     start_s: f32,
+                     end_s: f32,
+                     out: &mut Vec<SegmentData>|
          -> CoreResult<()> {
             if pending.is_empty() {
                 return Ok(());
@@ -425,12 +417,7 @@ impl TranscriptEngine {
             }
         }
         // Sona kalan metin için bitiş zamanı segment süresidir.
-        flush(
-            &mut pending,
-            prev_ts_s,
-            segment_duration_s as f32,
-            out,
-        )?;
+        flush(&mut pending, prev_ts_s, segment_duration_s as f32, out)?;
         Ok(())
     }
 
@@ -530,7 +517,10 @@ impl TranscriptEngine {
                 let probs: Vec<f32> = prs.to_vec1().map_err(candle_err)?;
                 // Sıfır olasılıklı tokenler WeightedIndex tarafından reddedilir;
                 // küçük bir taban ekleyerek geçerli bir dağılım kur.
-                let safe: Vec<f32> = probs.iter().map(|&p| if p.is_finite() && p > 0.0 { p } else { 1e-12 }).collect();
+                let safe: Vec<f32> = probs
+                    .iter()
+                    .map(|&p| if p.is_finite() && p > 0.0 { p } else { 1e-12 })
+                    .collect();
                 let distr = WeightedIndex::new(&safe)
                     .map_err(|e| CoreError::invalid(format!("olasılık dağılımı: {e}")))?;
                 distr.sample(&mut self.rng) as u32
@@ -596,7 +586,10 @@ impl TranscriptEngine {
         let mut buf = vec![0f32; vocab_size as usize];
 
         if !sampled.is_empty() {
-            let last_was_ts = sampled.last().map(|&t| t >= timestamp_begin).unwrap_or(false);
+            let last_was_ts = sampled
+                .last()
+                .map(|&t| t >= timestamp_begin)
+                .unwrap_or(false);
             let penult_was_ts = if sampled.len() >= 2 {
                 sampled[sampled.len() - 2] >= timestamp_begin
             } else {
@@ -697,10 +690,12 @@ impl TranscriptEngine {
 
         let ts_logprob = {
             let max_val = ts_log_probs.max(0).map_err(candle_err)?;
-            let shifted = ts_log_probs
-                .broadcast_sub(&max_val)
+            let shifted = ts_log_probs.broadcast_sub(&max_val).map_err(candle_err)?;
+            let sum_exp = shifted
+                .exp()
+                .map_err(candle_err)?
+                .sum(0)
                 .map_err(candle_err)?;
-            let sum_exp = shifted.exp().map_err(candle_err)?.sum(0).map_err(candle_err)?;
             let log_sum = sum_exp.log().map_err(candle_err)?;
             max_val
                 .broadcast_add(&log_sum)

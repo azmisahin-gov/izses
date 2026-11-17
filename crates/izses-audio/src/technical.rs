@@ -82,7 +82,12 @@ fn probe_symphonia(path: &Path) -> izses_core::error::CoreResult<AudioTechnicalI
     }
 
     let probed = symphonia::default::get_probe()
-        .format(&hint, mss, &FormatOptions::default(), &MetadataOptions::default())
+        .format(
+            &hint,
+            mss,
+            &FormatOptions::default(),
+            &MetadataOptions::default(),
+        )
         .map_err(|e| izses_core::CoreError::invalid(format!("{e}")))?;
 
     let format = probed.format;
@@ -109,7 +114,7 @@ fn probe_symphonia(path: &Path) -> izses_core::error::CoreResult<AudioTechnicalI
     if let Some(tb) = params.time_base {
         if let Some(n_frames) = params.n_frames {
             let dur = tb.calc_time(n_frames);
-            info.duration_ms = Some((dur.seconds * 1000 + (dur.frac * 1000.0) as u64) as u64);
+            info.duration_ms = Some(dur.seconds * 1000 + (dur.frac * 1000.0) as u64);
         }
     }
     if let (Some(br), Some(sr)) = (params.bits_per_sample, params.sample_rate) {
@@ -118,20 +123,16 @@ fn probe_symphonia(path: &Path) -> izses_core::error::CoreResult<AudioTechnicalI
 
     // Süre bilinmiyorsa kodeği açıp paketleri sayarak süreyi çıkar.
     if info.duration_ms.is_none() {
-        if let Ok(mut decoder) = symphonia::default::get_codecs()
-            .make(params, &DecoderOptions::default())
+        if let Ok(mut decoder) =
+            symphonia::default::get_codecs().make(params, &DecoderOptions::default())
         {
-            if let Some(mut format) = Some(format) {
+            {
+                let mut format = format;
                 let mut total_frames: u64 = 0;
                 let sr = info.sample_rate;
-                loop {
-                    match format.next_packet() {
-                        Ok(packet) => {
-                            if let Ok(buf) = decoder.decode(&packet) {
-                                total_frames += buf.frames() as u64;
-                            }
-                        }
-                        Err(_) => break,
+                while let Ok(packet) = format.next_packet() {
+                    if let Ok(buf) = decoder.decode(&packet) {
+                        total_frames += buf.frames() as u64;
                     }
                 }
                 if let Some(sr) = sr {
@@ -147,8 +148,8 @@ fn probe_symphonia(path: &Path) -> izses_core::error::CoreResult<AudioTechnicalI
 }
 
 fn probe_hound(path: &Path) -> izses_core::error::CoreResult<AudioTechnicalInfo> {
-    let reader = hound::WavReader::open(path)
-        .map_err(|e| izses_core::CoreError::invalid(format!("{e}")))?;
+    let reader =
+        hound::WavReader::open(path).map_err(|e| izses_core::CoreError::invalid(format!("{e}")))?;
     let spec = reader.spec();
     let frames = reader.len() as u64 / spec.channels.max(1) as u64;
     let duration_ms = if spec.sample_rate > 0 {

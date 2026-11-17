@@ -158,7 +158,13 @@ pub struct TranscriptSegment {
 }
 
 impl TranscriptSegment {
-    pub fn new(transcript_id: &Id, index: u32, start_ms: u64, end_ms: u64, auto_text: String) -> Self {
+    pub fn new(
+        transcript_id: &Id,
+        index: u32,
+        start_ms: u64,
+        end_ms: u64,
+        auto_text: String,
+    ) -> Self {
         Self {
             id: Id::new(),
             transcript_id: transcript_id.clone(),
@@ -299,7 +305,12 @@ pub struct Note {
 }
 
 impl Note {
-    pub fn new(investigation_id: &Id, kind: NoteKind, title: impl Into<String>, body: impl Into<String>) -> Self {
+    pub fn new(
+        investigation_id: &Id,
+        kind: NoteKind,
+        title: impl Into<String>,
+        body: impl Into<String>,
+    ) -> Self {
         let now = Utc::now();
         Self {
             id: Id::new(),

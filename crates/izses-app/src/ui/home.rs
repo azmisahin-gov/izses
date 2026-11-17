@@ -69,7 +69,10 @@ pub fn show(app: &mut IzsesApp, ctx: &egui::Context) {
 fn new_investigation_form(app: &mut IzsesApp, ui: &mut egui::Ui) {
     egui::Frame::new()
         .fill(egui::Color32::WHITE)
-        .stroke(egui::Stroke::new(1.0_f32, egui::Color32::from_rgb(214, 218, 224)))
+        .stroke(egui::Stroke::new(
+            1.0_f32,
+            egui::Color32::from_rgb(214, 218, 224),
+        ))
         .inner_margin(egui::Margin::same(12))
         .corner_radius(6.0)
         .show(ui, |ui| {
@@ -95,7 +98,10 @@ fn new_investigation_form(app: &mut IzsesApp, ui: &mut egui::Ui) {
             });
 
             ui.add_space(4.0);
-            theme::muted(ui, "Taraf bilgileri (satır başına bir taraf, 'Rol: Ad' biçiminde)");
+            theme::muted(
+                ui,
+                "Taraf bilgileri (satır başına bir taraf, 'Rol: Ad' biçiminde)",
+            );
             let mut parties_text = inv
                 .parties
                 .iter()
@@ -128,7 +134,10 @@ fn new_investigation_form(app: &mut IzsesApp, ui: &mut egui::Ui) {
             field(ui, "Uzmanlık alanı", &mut inv.expertise_field);
 
             ui.add_space(4.0);
-            theme::muted(ui, "Görevlendirme yazısındaki sorular (satır başına bir soru)");
+            theme::muted(
+                ui,
+                "Görevlendirme yazısındaki sorular (satır başına bir soru)",
+            );
             ui.add(
                 egui::TextEdit::multiline(&mut app.new_questions_text)
                     .desired_rows(3)
@@ -157,7 +166,7 @@ fn new_investigation_form(app: &mut IzsesApp, ui: &mut egui::Ui) {
             }
 
             ui.horizontal(|ui| {
-                let can_create = app.new_investigation.case_number.trim().is_empty() == false;
+                let can_create = !app.new_investigation.case_number.trim().is_empty();
                 if ui
                     .add_enabled(can_create, egui::Button::new("İnceleme Oluştur"))
                     .clicked()
@@ -207,7 +216,10 @@ fn create(app: &mut IzsesApp) {
 fn investigation_list(app: &mut IzsesApp, ui: &mut egui::Ui) {
     egui::Frame::new()
         .fill(egui::Color32::WHITE)
-        .stroke(egui::Stroke::new(1.0_f32, egui::Color32::from_rgb(214, 218, 224)))
+        .stroke(egui::Stroke::new(
+            1.0_f32,
+            egui::Color32::from_rgb(214, 218, 224),
+        ))
         .inner_margin(egui::Margin::same(12))
         .corner_radius(6.0)
         .show(ui, |ui| {
@@ -238,11 +250,7 @@ fn investigation_list(app: &mut IzsesApp, ui: &mut egui::Ui) {
                     .corner_radius(4.0)
                     .show(ui, |ui| {
                         ui.horizontal(|ui| {
-                            ui.label(
-                                RichText::new(inv.display_title())
-                                    .size(13.5)
-                                    .strong(),
-                            );
+                            ui.label(RichText::new(inv.display_title()).size(13.5).strong());
                             ui.with_layout(
                                 egui::Layout::right_to_left(egui::Align::Center),
                                 |ui| {
@@ -255,7 +263,11 @@ fn investigation_list(app: &mut IzsesApp, ui: &mut egui::Ui) {
                             ui,
                             &format!(
                                 "{} · Bilirkişi: {} · Güncelleme: {}",
-                                if inv.court.is_empty() { "—" } else { &inv.court },
+                                if inv.court.is_empty() {
+                                    "—"
+                                } else {
+                                    &inv.court
+                                },
                                 if inv.expert_name.is_empty() {
                                     "—"
                                 } else {
@@ -291,10 +303,7 @@ fn status_color(status: InvestigationStatus) -> egui::Color32 {
 fn field(ui: &mut egui::Ui, label: &str, value: &mut String) {
     ui.horizontal(|ui| {
         ui.label(RichText::new(format!("{label}:")).size(13.0));
-        ui.add(
-            egui::TextEdit::singleline(value)
-                .desired_width(f32::INFINITY),
-        );
+        ui.add(egui::TextEdit::singleline(value).desired_width(f32::INFINITY));
     });
 }
 

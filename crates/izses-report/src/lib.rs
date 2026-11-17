@@ -4,8 +4,8 @@
 //! DOCX (Word), PDF ve HTML. Otomatik oluşturulan bölümler ile bilirkişinin
 //! kendi değerlendirmesi raporda ayırt edilebilir.
 
-pub mod docx;
 pub mod document;
+pub mod docx;
 pub mod html;
 pub mod model;
 pub mod pdf;

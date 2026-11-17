@@ -273,7 +273,7 @@ mod platform {
                     let path = entry.path();
                     if path.is_dir() {
                         out.push(describe(&path, DeviceKind::Removable));
-                    } else if base == PathBuf::from("/run/media") {
+                    } else if base == *"/run/media" {
                         // /run/media/<user>/<device>
                         if let Ok(inner) = std::fs::read_dir(&path) {
                             for e2 in inner.flatten() {

@@ -99,10 +99,7 @@ pub fn show(app: &mut IzsesApp, ui: &mut egui::Ui) {
 
 /// Oynatma paneli ve yardımcı kontroller.
 fn player_panel(app: &mut IzsesApp, ui: &mut egui::Ui, file: &EvidenceFile) {
-    let path = app
-        .session
-        .as_ref()
-        .map(|s| s.local_path(&app.root, file));
+    let path = app.session.as_ref().map(|s| s.local_path(&app.root, file));
 
     card(ui, |ui| {
         theme::subheading(ui, "Oynatma");
@@ -111,7 +108,12 @@ fn player_panel(app: &mut IzsesApp, ui: &mut egui::Ui, file: &EvidenceFile) {
         let segments = app
             .session
             .as_ref()
-            .map(|s| s.segments_for_file(&file.id).into_iter().cloned().collect::<Vec<_>>())
+            .map(|s| {
+                s.segments_for_file(&file.id)
+                    .into_iter()
+                    .cloned()
+                    .collect::<Vec<_>>()
+            })
             .unwrap_or_default();
 
         let duration_ms = file
@@ -146,7 +148,11 @@ fn player_panel(app: &mut IzsesApp, ui: &mut egui::Ui, file: &EvidenceFile) {
             if ui.button("⏪ -5 sn").clicked() {
                 app.review_playhead_ms = app.review_playhead_ms.saturating_sub(5000);
             }
-            let play_label = if app.review_playing { "⏸ Duraklat" } else { "▶ Oynat" };
+            let play_label = if app.review_playing {
+                "⏸ Duraklat"
+            } else {
+                "▶ Oynat"
+            };
             if ui.button(play_label).clicked() {
                 app.review_playing = !app.review_playing;
                 if app.review_playing {
@@ -248,15 +254,9 @@ fn segments_panel(app: &mut IzsesApp, ui: &mut egui::Ui, file: &EvidenceFile) {
 
     card(ui, |ui| {
         ui.horizontal(|ui| {
-            theme::subheading(
-                ui,
-                &format!("Metin Bölümleri ({})", segments.len()),
-            );
+            theme::subheading(ui, &format!("Metin Bölümleri ({})", segments.len()));
             ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
-                theme::muted(
-                    ui,
-                    "Kısayol: ↑/↓ bölüm geçişi, Enter oynat",
-                );
+                theme::muted(ui, "Kısayol: ↑/↓ bölüm geçişi, Enter oynat");
             });
         });
         ui.add_space(4.0);
@@ -357,11 +357,7 @@ fn segments_panel(app: &mut IzsesApp, ui: &mut egui::Ui, file: &EvidenceFile) {
                 // Bilirkişi düzeltmesi.
                 let mut edited = seg.edited_text.clone().unwrap_or_default();
                 ui.horizontal(|ui| {
-                    ui.label(
-                        RichText::new("Düzeltme:")
-                            .size(12.0)
-                            .color(theme::INFO),
-                    );
+                    ui.label(RichText::new("Düzeltme:").size(12.0).color(theme::INFO));
                     let response = ui.add(
                         egui::TextEdit::singleline(&mut edited)
                             .desired_width(f32::INFINITY)
@@ -504,7 +500,11 @@ fn apply_segment_change(app: &mut IzsesApp, updated: &TranscriptSegment) {
                     &updated.transcript_id,
                     before,
                     after,
-                    if author.is_empty() { "Bilirkişi" } else { &author },
+                    if author.is_empty() {
+                        "Bilirkişi"
+                    } else {
+                        &author
+                    },
                 );
                 rev.note = Some("düzeltme".to_string());
                 store.insert_revision(&rev)?;
@@ -543,7 +543,11 @@ fn apply_revert(app: &mut IzsesApp, id: &izses_core::model::Id) {
 }
 
 /// Bölümü ikiye ayırır.
-fn apply_split(app: &mut IzsesApp, transcript_id: &izses_core::model::Id, id: &izses_core::model::Id) {
+fn apply_split(
+    app: &mut IzsesApp,
+    transcript_id: &izses_core::model::Id,
+    id: &izses_core::model::Id,
+) {
     let result = {
         let store_arc = app.store_handle();
         let store = store_arc.lock().unwrap();
@@ -561,13 +565,8 @@ fn apply_split(app: &mut IzsesApp, transcript_id: &izses_core::model::Id, id: &i
             store.update_segment(&mut first)?;
 
             // İkinci yarı (yeni bölüm).
-            let mut second = TranscriptSegment::new(
-                transcript_id,
-                0,
-                mid,
-                seg.end_ms,
-                String::new(),
-            );
+            let mut second =
+                TranscriptSegment::new(transcript_id, 0, mid, seg.end_ms, String::new());
             second.edited_text = if seg.auto_text.is_empty() {
                 None
             } else {
@@ -593,7 +592,11 @@ fn apply_split(app: &mut IzsesApp, transcript_id: &izses_core::model::Id, id: &i
 }
 
 /// Bir bölümü sonrakiyle birleştirir.
-fn apply_merge(app: &mut IzsesApp, transcript_id: &izses_core::model::Id, id: &izses_core::model::Id) {
+fn apply_merge(
+    app: &mut IzsesApp,
+    transcript_id: &izses_core::model::Id,
+    id: &izses_core::model::Id,
+) {
     let result = {
         let store_arc = app.store_handle();
         let store = store_arc.lock().unwrap();
@@ -759,7 +762,10 @@ fn start_playback(app: &mut IzsesApp, file: &EvidenceFile) {
 fn card(ui: &mut egui::Ui, contents: impl FnOnce(&mut egui::Ui)) {
     egui::Frame::new()
         .fill(egui::Color32::WHITE)
-        .stroke(egui::Stroke::new(1.0_f32, egui::Color32::from_rgb(214, 218, 224)))
+        .stroke(egui::Stroke::new(
+            1.0_f32,
+            egui::Color32::from_rgb(214, 218, 224),
+        ))
         .inner_margin(egui::Margin::same(12))
         .corner_radius(6.0)
         .show(ui, contents);

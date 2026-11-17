@@ -174,7 +174,10 @@ fn transcription_service_persists_and_resumes() {
         .collect::<Vec<_>>()
         .join(" ");
     eprintln!("üretilen metin: {full}");
-    assert!(full.split_whitespace().count() >= 3, "metin çok kısa: {full}");
+    assert!(
+        full.split_whitespace().count() >= 3,
+        "metin çok kısa: {full}"
+    );
 
     // Zaman damgaları artan olmalı.
     for pair in segs.windows(2) {

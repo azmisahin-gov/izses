@@ -95,7 +95,13 @@ pub fn show(app: &mut IzsesApp, ui: &mut egui::Ui) {
     // Sorunlu dosyalar.
     let problematic: Vec<&EvidenceFile> = files
         .iter()
-        .filter(|f| f.issue.is_some() || f.audio.as_ref().and_then(|a| a.probe_error.as_ref()).is_some())
+        .filter(|f| {
+            f.issue.is_some()
+                || f.audio
+                    .as_ref()
+                    .and_then(|a| a.probe_error.as_ref())
+                    .is_some()
+        })
         .collect();
     if !problematic.is_empty() {
         card(ui, |ui| {
@@ -148,10 +154,7 @@ pub fn show(app: &mut IzsesApp, ui: &mut egui::Ui) {
 
         if let Some(i) = selected_index {
             if let Some(file) = files.get(i) {
-                let path = app
-                    .session
-                    .as_ref()
-                    .map(|s| s.local_path(&app.root, file));
+                let path = app.session.as_ref().map(|s| s.local_path(&app.root, file));
 
                 if let Some(path) = path {
                     // Dalga formu ve spektrogram.
@@ -163,7 +166,11 @@ pub fn show(app: &mut IzsesApp, ui: &mut egui::Ui) {
                                     "Süre",
                                     &izses_core::timefmt::format_ms(audio.duration_ms),
                                 );
-                                theme::key_value(ui, "Kaynak kanal", &audio.source_channels.to_string());
+                                theme::key_value(
+                                    ui,
+                                    "Kaynak kanal",
+                                    &audio.source_channels.to_string(),
+                                );
                                 theme::key_value(
                                     ui,
                                     "Kaynak örnekleme",
@@ -187,9 +194,7 @@ pub fn show(app: &mut IzsesApp, ui: &mut egui::Ui) {
                                      dinlemek için aşağıdaki seçimi kullanın.",
                                 );
                                 ui.horizontal(|ui| {
-                                    for (label, ch) in
-                                        [("Sol", 0usize), ("Sağ", 1)]
-                                    {
+                                    for (label, ch) in [("Sol", 0usize), ("Sağ", 1)] {
                                         if ui.button(label).clicked() {
                                             app.notify(
                                                 NotificationKind::Info,
@@ -306,7 +311,10 @@ fn heat_color(t: f32) -> egui::Color32 {
 fn card(ui: &mut egui::Ui, contents: impl FnOnce(&mut egui::Ui)) {
     egui::Frame::new()
         .fill(egui::Color32::WHITE)
-        .stroke(egui::Stroke::new(1.0_f32, egui::Color32::from_rgb(214, 218, 224)))
+        .stroke(egui::Stroke::new(
+            1.0_f32,
+            egui::Color32::from_rgb(214, 218, 224),
+        ))
         .inner_margin(egui::Margin::same(12))
         .corner_radius(6.0)
         .show(ui, contents);

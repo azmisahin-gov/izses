@@ -1,6 +1,6 @@
 //! Delil Materyalleri sekmesi: aygıt keşfi, tarama ve güvenli aktarım.
 
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 use egui::RichText;
 
@@ -43,10 +43,7 @@ fn device_section(app: &mut IzsesApp, ui: &mut egui::Ui) {
                     if let Some(dir) = rfd::FileDialog::new().pick_folder() {
                         if let Some(dev) = device::device_from_path(&dir) {
                             app.devices.insert(0, dev);
-                            app.notify(
-                                NotificationKind::Info,
-                                "Klasör kaynak listesine eklendi",
-                            );
+                            app.notify(NotificationKind::Info, "Klasör kaynak listesine eklendi");
                         }
                     }
                 }
@@ -67,7 +64,11 @@ fn device_section(app: &mut IzsesApp, ui: &mut egui::Ui) {
         let mut to_add: Option<DeviceInfo> = None;
         for dev in &devices {
             ui.horizontal(|ui| {
-                ui.label(RichText::new(format!("💾 {}", dev.label)).strong().size(13.5));
+                ui.label(
+                    RichText::new(format!("💾 {}", dev.label))
+                        .strong()
+                        .size(13.5),
+                );
                 theme::muted(ui, &dev.summary());
                 ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
                     if dev.readable {
@@ -170,7 +171,10 @@ fn sources_section(app: &mut IzsesApp, ui: &mut egui::Ui) {
 
             egui::Frame::new()
                 .fill(egui::Color32::from_rgb(250, 251, 252))
-                .stroke(egui::Stroke::new(1.0_f32, egui::Color32::from_rgb(226, 230, 236)))
+                .stroke(egui::Stroke::new(
+                    1.0_f32,
+                    egui::Color32::from_rgb(226, 230, 236),
+                ))
                 .inner_margin(egui::Margin::same(10))
                 .corner_radius(4.0)
                 .show(ui, |ui| {
@@ -181,21 +185,18 @@ fn sources_section(app: &mut IzsesApp, ui: &mut egui::Ui) {
                                 .size(13.5),
                         );
                         theme::badge(ui, src.kind.label_tr(), theme::INFO);
-                        ui.with_layout(
-                            egui::Layout::right_to_left(egui::Align::Center),
-                            |ui| {
-                                if ui.button("Kaldır").clicked() {
-                                    to_remove = Some(src.id.clone());
-                                }
-                                if ui.button("Tara").clicked() {
-                                    to_scan = Some((
-                                        src.id.clone(),
-                                        src.root_path.clone(),
-                                        src.folder_name(),
-                                    ));
-                                }
-                            },
-                        );
+                        ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
+                            if ui.button("Kaldır").clicked() {
+                                to_remove = Some(src.id.clone());
+                            }
+                            if ui.button("Tara").clicked() {
+                                to_scan = Some((
+                                    src.id.clone(),
+                                    src.root_path.clone(),
+                                    src.folder_name(),
+                                ));
+                            }
+                        });
                     });
                     theme::muted(
                         ui,
@@ -222,7 +223,7 @@ fn sources_section(app: &mut IzsesApp, ui: &mut egui::Ui) {
 }
 
 /// Kaynağı tarar ve bulunan dosyaları gösterir.
-fn scan_source(app: &mut IzsesApp, source_id: &izses_core::model::Id, path: &PathBuf, _folder: &str) {
+fn scan_source(app: &mut IzsesApp, source_id: &izses_core::model::Id, path: &Path, _folder: &str) {
     let inv_id = app.session.as_ref().map(|s| s.id().clone());
     let Some(inv_id) = inv_id else { return };
 
@@ -260,10 +261,7 @@ fn scan_source(app: &mut IzsesApp, source_id: &izses_core::model::Id, path: &Pat
             app.refresh_session();
         }
         Err(e) => {
-            app.notify(
-                NotificationKind::Error,
-                format!("Tarama başarısız: {e}"),
-            );
+            app.notify(NotificationKind::Error, format!("Tarama başarısız: {e}"));
         }
     }
 }
@@ -303,10 +301,7 @@ fn scan_section(app: &mut IzsesApp, ui: &mut egui::Ui) {
 
     card(ui, |ui| {
         ui.horizontal(|ui| {
-            theme::subheading(
-                ui,
-                &format!("Tarama Sonucu ({} dosya)", app.scanned.len()),
-            );
+            theme::subheading(ui, &format!("Tarama Sonucu ({} dosya)", app.scanned.len()));
             ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
                 if ui.button("Tüm Ses Dosyalarını Seç").clicked() {
                     for f in app.scanned.iter_mut() {
@@ -339,12 +334,9 @@ fn scan_section(app: &mut IzsesApp, ui: &mut egui::Ui) {
                         ui.checkbox(&mut f.selected, "");
                         widgets::category_badge(ui, f.category());
                         ui.label(RichText::new(f.display_name()).size(12.5));
-                        ui.with_layout(
-                            egui::Layout::right_to_left(egui::Align::Center),
-                            |ui| {
-                                theme::muted(ui, &device::format_size(f.size_bytes()));
-                            },
-                        );
+                        ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
+                            theme::muted(ui, &device::format_size(f.size_bytes()));
+                        });
                     });
                 }
             });
@@ -362,7 +354,9 @@ fn scan_section(app: &mut IzsesApp, ui: &mut egui::Ui) {
                 if ui
                     .add_enabled(
                         total_selected > 0,
-                        egui::Button::new(format!("Seçili {total_selected} Dosyayı İncelemeye Aktar")),
+                        egui::Button::new(format!(
+                            "Seçili {total_selected} Dosyayı İncelemeye Aktar"
+                        )),
                     )
                     .clicked()
                 {
@@ -383,12 +377,7 @@ fn acquire_selected(app: &mut IzsesApp) {
         return;
     };
 
-    let selected: Vec<ScannedItem> = app
-        .scanned
-        .iter()
-        .filter(|f| f.selected)
-        .cloned()
-        .collect();
+    let selected: Vec<ScannedItem> = app.scanned.iter().filter(|f| f.selected).cloned().collect();
 
     if selected.is_empty() {
         return;
@@ -447,9 +436,8 @@ fn acquire_selected(app: &mut IzsesApp) {
     app.scanned.retain(|f| !f.selected);
     app.scanned_source = None;
 
-    let msg = format!(
-        "Aktarım bitti: {succeeded} doğrulandı, {mismatch} uyuşmazlık, {failed} hata"
-    );
+    let msg =
+        format!("Aktarım bitti: {succeeded} doğrulandı, {mismatch} uyuşmazlık, {failed} hata");
     let kind = if failed > 0 || mismatch > 0 {
         NotificationKind::Warning
     } else {
@@ -462,7 +450,10 @@ fn acquire_selected(app: &mut IzsesApp) {
 fn card(ui: &mut egui::Ui, contents: impl FnOnce(&mut egui::Ui)) {
     egui::Frame::new()
         .fill(egui::Color32::WHITE)
-        .stroke(egui::Stroke::new(1.0_f32, egui::Color32::from_rgb(214, 218, 224)))
+        .stroke(egui::Stroke::new(
+            1.0_f32,
+            egui::Color32::from_rgb(214, 218, 224),
+        ))
         .inner_margin(egui::Margin::same(12))
         .corner_radius(6.0)
         .show(ui, contents);

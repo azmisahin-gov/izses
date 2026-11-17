@@ -320,7 +320,9 @@ impl PdfBuilder {
         // 1 Catalog, 2 Pages, 3 Type0 Font, 4 CIDFont, 5 Descriptor,
         // 6 FontFile2, 7 ToUnicode, 8 CIDToGIDMap, 9+ sayfalar.
         let first_page_obj = 9usize;
-        let content_objs: Vec<usize> = (0..page_count).map(|i| first_page_obj + i * 2 + 1).collect();
+        let content_objs: Vec<usize> = (0..page_count)
+            .map(|i| first_page_obj + i * 2 + 1)
+            .collect();
 
         let mut objects: Vec<Vec<u8>> = Vec::new();
 
@@ -632,6 +634,9 @@ mod tests {
         };
         let mut builder = PdfBuilder::new(font).unwrap();
         let gids = builder.encode("çğıöşü ÇĞİÖŞÜ");
-        assert!(gids.iter().all(|&g| g != 0), "glifsiz karakter var: {gids:?}");
+        assert!(
+            gids.iter().all(|&g| g != 0),
+            "glifsiz karakter var: {gids:?}"
+        );
     }
 }

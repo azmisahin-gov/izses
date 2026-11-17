@@ -264,7 +264,10 @@ impl IzsesApp {
         let result = self.with_store(|s| s.list_investigations());
         match result {
             Ok(list) => self.investigations = list,
-            Err(e) => self.notify(NotificationKind::Error, format!("İncelemeler yüklenemedi: {e}")),
+            Err(e) => self.notify(
+                NotificationKind::Error,
+                format!("İncelemeler yüklenemedi: {e}"),
+            ),
         }
     }
 
@@ -413,7 +416,9 @@ impl IzsesApp {
                     // Parça kaydedildi; arayüz ilerlemesi zaten güncelleniyor.
                 }
                 Event::FileCompleted {
-                    file_name, segments, ..
+                    file_name,
+                    segments,
+                    ..
                 } => {
                     self.notify(
                         NotificationKind::Success,
@@ -424,10 +429,7 @@ impl IzsesApp {
                 Event::FileFailed {
                     file_name, error, ..
                 } => {
-                    self.notify(
-                        NotificationKind::Error,
-                        format!("{file_name}: {error}"),
-                    );
+                    self.notify(NotificationKind::Error, format!("{file_name}: {error}"));
                     self.refresh_session();
                 }
                 Event::QueueFinished { completed, failed } => {
@@ -548,9 +550,7 @@ impl IzsesApp {
 
     /// İncelemenin yerel klasörünü açar.
     pub fn investigation_dir(&self) -> Option<std::path::PathBuf> {
-        self.session
-            .as_ref()
-            .map(|s| s.dir(&self.root))
+        self.session.as_ref().map(|s| s.dir(&self.root))
     }
 }
 

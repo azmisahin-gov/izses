@@ -233,8 +233,8 @@ mod tests {
         // 1 saniye, 44.1 kHz, stereo, 440 Hz sinüs.
         let mut samples = Vec::new();
         for i in 0..44_100 {
-            let v = ((i as f32 * 440.0 * 2.0 * std::f32::consts::PI / 44_100.0).sin()
-                * 16_000.0) as i16;
+            let v = ((i as f32 * 440.0 * 2.0 * std::f32::consts::PI / 44_100.0).sin() * 16_000.0)
+                as i16;
             samples.push(v);
             samples.push(v);
         }

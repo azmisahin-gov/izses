@@ -35,7 +35,8 @@ fn row_to_investigation(row: &Row<'_>) -> rusqlite::Result<Investigation> {
         questions: serde_json::from_str(&questions_json).unwrap_or_default(),
         storage_key: row.get("storage_key")?,
         scope_notes: row.get("scope_notes")?,
-        status: InvestigationStatus::from_str_opt(&status_str).unwrap_or(InvestigationStatus::Draft),
+        status: InvestigationStatus::from_str_opt(&status_str)
+            .unwrap_or(InvestigationStatus::Draft),
         created_at: parse_dt(row.get("created_at")?).unwrap_or_else(Utc::now),
         updated_at: parse_dt(row.get("updated_at")?).unwrap_or_else(Utc::now),
     })
@@ -159,9 +160,9 @@ impl Store {
         &self,
         status: InvestigationStatus,
     ) -> CoreResult<Vec<Investigation>> {
-        let mut stmt = self.conn().prepare(
-            "SELECT * FROM investigations WHERE status = ?1 ORDER BY updated_at DESC",
-        )?;
+        let mut stmt = self
+            .conn()
+            .prepare("SELECT * FROM investigations WHERE status = ?1 ORDER BY updated_at DESC")?;
         let rows = stmt.query_map(params![status.as_str()], row_to_investigation)?;
         let mut out = Vec::new();
         for r in rows {

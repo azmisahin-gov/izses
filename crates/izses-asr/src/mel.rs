@@ -51,11 +51,7 @@ pub fn compute_mel(samples: &[f32], num_mel_bins: usize) -> Vec<f32> {
 
 /// Örnek dizisini Candle tensörü için hazır biçimde döndürür: (bins, frames).
 pub fn mel_dimensions(num_mel_bins: usize, mel_len: usize) -> (usize, usize) {
-    let frames = if num_mel_bins == 0 {
-        0
-    } else {
-        mel_len / num_mel_bins
-    };
+    let frames = mel_len.checked_div(num_mel_bins).unwrap_or(0);
     (num_mel_bins, frames)
 }
 
@@ -107,9 +103,8 @@ pub fn chunk_by_silence(samples: &[f32], target_chunk: usize, min_chunk: usize) 
     let mut boundaries = vec![0usize];
     let mut i = 0;
     while i + window <= samples.len() {
-        let energy = (samples[i..i + window].iter().map(|&s| s * s).sum::<f32>()
-            / window as f32)
-            .sqrt();
+        let energy =
+            (samples[i..i + window].iter().map(|&s| s * s).sum::<f32>() / window as f32).sqrt();
         if energy < threshold {
             // Sessizliğin ortasını kesim noktası olarak işaretle.
             let candidate = i + window / 2;
@@ -150,9 +145,7 @@ mod tests {
 
     #[test]
     fn computes_mel_for_one_second() {
-        let samples: Vec<f32> = (0..16_000)
-            .map(|i| (i as f32 * 0.01).sin() * 0.3)
-            .collect();
+        let samples: Vec<f32> = (0..16_000).map(|i| (i as f32 * 0.01).sin() * 0.3).collect();
         let mel = compute_mel(&samples, 80);
         let (bins, frames) = mel_dimensions(80, mel.len());
         assert_eq!(bins, 80);
@@ -190,8 +183,8 @@ mod tests {
     fn silence_chunking_splits_on_quiet_regions() {
         // 40 sn konuşma - 2 sn sessizlik - 40 sn konuşma (hedef 30 sn'den uzun).
         let mut samples = vec![0.2f32; 16_000 * 40];
-        samples.extend(std::iter::repeat(0.0).take(16_000 * 2));
-        samples.extend(std::iter::repeat(0.2).take(16_000 * 40));
+        samples.extend(std::iter::repeat_n(0.0, 16_000 * 2));
+        samples.extend(std::iter::repeat_n(0.2, 16_000 * 40));
         let chunks = chunk_by_silence(&samples, SAMPLES_PER_CHUNK, 16_000);
         assert!(chunks.len() >= 2, "parça sayısı: {}", chunks.len());
         assert!(chunks.iter().all(|c| c.len() >= SAMPLES_PER_CHUNK));

@@ -17,7 +17,10 @@ pub fn show(app: &mut IzsesApp, ctx: &Context) {
         .show(ctx, |ui| {
             egui::Frame::new()
                 .fill(egui::Color32::from_rgb(255, 255, 255))
-                .stroke(egui::Stroke::new(1.0_f32, egui::Color32::from_rgb(210, 214, 220)))
+                .stroke(egui::Stroke::new(
+                    1.0_f32,
+                    egui::Color32::from_rgb(210, 214, 220),
+                ))
                 .inner_margin(egui::Margin::same(8))
                 .corner_radius(6.0)
                 .show(ui, |ui| {

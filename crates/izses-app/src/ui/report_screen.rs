@@ -187,12 +187,9 @@ pub fn show(app: &mut IzsesApp, ui: &mut egui::Ui) {
                     );
                     for block in &report.transcript_blocks {
                         ui.label(
-                            RichText::new(format!(
-                                "{} ({})",
-                                block.file_name, block.source_label
-                            ))
-                            .size(12.5)
-                            .strong(),
+                            RichText::new(format!("{} ({})", block.file_name, block.source_label))
+                                .size(12.5)
+                                .strong(),
                         );
                         for seg in &block.segments {
                             ui.label(
@@ -248,7 +245,10 @@ fn export(app: &mut IzsesApp, format: ExportFormat) {
 fn card(ui: &mut egui::Ui, contents: impl FnOnce(&mut egui::Ui)) {
     egui::Frame::new()
         .fill(egui::Color32::WHITE)
-        .stroke(egui::Stroke::new(1.0_f32, egui::Color32::from_rgb(214, 218, 224)))
+        .stroke(egui::Stroke::new(
+            1.0_f32,
+            egui::Color32::from_rgb(214, 218, 224),
+        ))
         .inner_margin(egui::Margin::same(12))
         .corner_radius(6.0)
         .show(ui, contents);

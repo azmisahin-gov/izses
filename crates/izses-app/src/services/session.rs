@@ -85,7 +85,9 @@ impl Session {
 
     /// Bir ses dosyasına ait deşifre kaydı.
     pub fn transcript_for_file(&self, file_id: &Id) -> Option<&Transcript> {
-        self.transcripts.iter().find(|t| &t.evidence_file_id == file_id)
+        self.transcripts
+            .iter()
+            .find(|t| &t.evidence_file_id == file_id)
     }
 
     /// Bir dosyanın metin bölümleri.
@@ -102,7 +104,10 @@ impl Session {
 
     /// Bir kaynağa ait dosyalar.
     pub fn files_for_source(&self, source_id: &Id) -> Vec<&EvidenceFile> {
-        self.files.iter().filter(|f| &f.source_id == source_id).collect()
+        self.files
+            .iter()
+            .filter(|f| &f.source_id == source_id)
+            .collect()
     }
 
     pub fn audio_files(&self) -> Vec<&EvidenceFile> {
@@ -151,11 +156,8 @@ impl Session {
         for field in self.investigation.missing_required_fields() {
             out.push(format!("Eksik bilgi: {field}"));
         }
-        let unverified: Vec<&EvidenceFile> = self
-            .files
-            .iter()
-            .filter(|f| !f.is_verified())
-            .collect();
+        let unverified: Vec<&EvidenceFile> =
+            self.files.iter().filter(|f| !f.is_verified()).collect();
         if !unverified.is_empty() {
             out.push(format!(
                 "{} dosyanın aktarımı doğrulanmadı",
@@ -172,7 +174,10 @@ impl Session {
             })
             .collect();
         if !pending.is_empty() {
-            out.push(format!("{} ses dosyasının deşifresi tamamlanmadı", pending.len()));
+            out.push(format!(
+                "{} ses dosyasının deşifresi tamamlanmadı",
+                pending.len()
+            ));
         }
         let flagged = self
             .segments
@@ -336,7 +341,9 @@ pub fn create_investigation(
         key = format!("{base_key}-{suffix}");
         suffix += 1;
         if suffix > 1000 {
-            return Err(CoreError::invalid("benzersiz depolama anahtarı üretilemedi"));
+            return Err(CoreError::invalid(
+                "benzersiz depolama anahtarı üretilemedi",
+            ));
         }
     }
     investigation.assign_storage_key(key.clone());
@@ -378,7 +385,10 @@ mod tests {
     fn creates_investigation_with_layout() {
         let (_tmp, root, _store, session) = setup();
         assert!(root.investigation_exists(&session.storage_key));
-        assert_eq!(session.investigation.status, InvestigationStatus::InProgress);
+        assert_eq!(
+            session.investigation.status,
+            InvestigationStatus::InProgress
+        );
     }
 
     #[test]

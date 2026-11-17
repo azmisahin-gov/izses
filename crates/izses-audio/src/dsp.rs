@@ -107,7 +107,10 @@ pub fn waveform(samples: &[f32], bins: usize) -> Vec<WaveformBin> {
         let start = (b as f64 * per) as usize;
         let end = (((b + 1) as f64 * per) as usize).min(samples.len());
         if start >= end {
-            out.push(WaveformBin { peak: 0.0, rms: 0.0 });
+            out.push(WaveformBin {
+                peak: 0.0,
+                rms: 0.0,
+            });
             continue;
         }
         let slice = &samples[start..end];
@@ -206,7 +209,10 @@ pub fn gentle_denoise(samples: &[f32], window: usize) -> Vec<f32> {
 
 /// Kazanç uygular (normalizasyon). Türetilmiş kopyalar için.
 pub fn apply_gain(samples: &[f32], gain: f32) -> Vec<f32> {
-    samples.iter().map(|&s| (s * gain).clamp(-1.0, 1.0)).collect()
+    samples
+        .iter()
+        .map(|&s| (s * gain).clamp(-1.0, 1.0))
+        .collect()
 }
 
 /// Tepe değere göre normalizasyon kazancını hesaplar.
@@ -234,14 +240,12 @@ mod tests {
     #[test]
     fn downmix_passthrough_mono() {
         let m = vec![0.1f32, 0.2];
-        assert_eq!(downmix_to_mono(&[m.clone()]), m);
+        assert_eq!(downmix_to_mono(std::slice::from_ref(&m)), m);
     }
 
     #[test]
     fn resample_changes_length_proportionally() {
-        let input: Vec<f32> = (0..48_000)
-            .map(|i| (i as f32 * 0.01).sin())
-            .collect();
+        let input: Vec<f32> = (0..48_000).map(|i| (i as f32 * 0.01).sin()).collect();
         let out = resample(&input, 48_000, 16_000);
         assert!((out.len() as i64 - 16_000).abs() < 50, "len={}", out.len());
     }

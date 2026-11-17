@@ -56,7 +56,11 @@ pub fn render_html(report: &Report) -> String {
             ));
             body.push_str("<table class=\"segments\"><thead><tr><th>Başlangıç</th><th>Bitiş</th><th>Konuşmacı</th><th>Metin</th><th>Durum</th></tr></thead><tbody>");
             for seg in &block.segments {
-                let status = if seg.is_edited() { "Düzeltildi" } else { "Otomatik" };
+                let status = if seg.is_edited() {
+                    "Düzeltildi"
+                } else {
+                    "Otomatik"
+                };
                 let flags = flag_summary(seg);
                 body.push_str(&format!(
                     "<tr class=\"{}\"><td>{}</td><td>{}</td><td>{}</td><td>{}{}</td><td>{}</td></tr>",

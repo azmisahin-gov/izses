@@ -152,9 +152,9 @@ impl Store {
     }
 
     pub fn list_transcripts(&self, investigation_id: &Id) -> CoreResult<Vec<Transcript>> {
-        let mut stmt = self.conn().prepare(
-            "SELECT * FROM transcripts WHERE investigation_id = ?1 ORDER BY created_at",
-        )?;
+        let mut stmt = self
+            .conn()
+            .prepare("SELECT * FROM transcripts WHERE investigation_id = ?1 ORDER BY created_at")?;
         let rows = stmt.query_map(params![investigation_id.0], transcript_from_row)?;
         let mut out = Vec::new();
         for r in rows {
@@ -308,9 +308,9 @@ impl Store {
     }
 
     pub fn list_segments(&self, transcript_id: &Id) -> CoreResult<Vec<TranscriptSegment>> {
-        let mut stmt = self.conn().prepare(
-            "SELECT * FROM transcript_segments WHERE transcript_id = ?1 ORDER BY idx",
-        )?;
+        let mut stmt = self
+            .conn()
+            .prepare("SELECT * FROM transcript_segments WHERE transcript_id = ?1 ORDER BY idx")?;
         let rows = stmt.query_map(params![transcript_id.0], segment_from_row)?;
         let mut out = Vec::new();
         for r in rows {
@@ -320,9 +320,10 @@ impl Store {
     }
 
     pub fn delete_segment(&self, id: &Id) -> CoreResult<()> {
-        let n = self
-            .conn()
-            .execute("DELETE FROM transcript_segments WHERE id = ?1", params![id.0])?;
+        let n = self.conn().execute(
+            "DELETE FROM transcript_segments WHERE id = ?1",
+            params![id.0],
+        )?;
         if n == 0 {
             return Err(CoreError::not_found("metin bölümü"));
         }
@@ -362,9 +363,9 @@ impl Store {
     }
 
     pub fn list_revisions(&self, transcript_id: &Id) -> CoreResult<Vec<SegmentRevision>> {
-        let mut stmt = self.conn().prepare(
-            "SELECT * FROM segment_revisions WHERE transcript_id = ?1 ORDER BY at",
-        )?;
+        let mut stmt = self
+            .conn()
+            .prepare("SELECT * FROM segment_revisions WHERE transcript_id = ?1 ORDER BY at")?;
         let rows = stmt.query_map(params![transcript_id.0], |row| {
             Ok(SegmentRevision {
                 id: Id(row.get("id")?),
@@ -524,7 +525,10 @@ mod tests {
 
         t.status = TranscriptStatus::Completed;
         store.update_transcript(&mut t).unwrap();
-        assert!(store.find_resumable_transcripts(&inv_id).unwrap().is_empty());
+        assert!(store
+            .find_resumable_transcripts(&inv_id)
+            .unwrap()
+            .is_empty());
     }
 
     #[test]

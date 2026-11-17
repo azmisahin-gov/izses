@@ -163,7 +163,9 @@ impl ModelStore {
         for name in [spec.weights_file, spec.tokenizer_file, spec.config_file] {
             let src = source_dir.join(name);
             if !src.is_file() {
-                return Err(CoreError::not_found(format!("kaynak model dosyası: {name}")));
+                return Err(CoreError::not_found(format!(
+                    "kaynak model dosyası: {name}"
+                )));
             }
             std::fs::copy(&src, dest.join(name))?;
         }

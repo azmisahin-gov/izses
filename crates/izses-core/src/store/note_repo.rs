@@ -73,9 +73,9 @@ impl Store {
     }
 
     pub fn list_notes(&self, investigation_id: &Id) -> CoreResult<Vec<Note>> {
-        let mut stmt = self.conn().prepare(
-            "SELECT * FROM notes WHERE investigation_id = ?1 ORDER BY created_at DESC",
-        )?;
+        let mut stmt = self
+            .conn()
+            .prepare("SELECT * FROM notes WHERE investigation_id = ?1 ORDER BY created_at DESC")?;
         let rows = stmt.query_map(params![investigation_id.0], note_from_row)?;
         let mut out = Vec::new();
         for r in rows {
@@ -86,7 +86,11 @@ impl Store {
 
     pub fn get_note(&self, id: &Id) -> CoreResult<Note> {
         self.conn()
-            .query_row("SELECT * FROM notes WHERE id = ?1", params![id.0], note_from_row)
+            .query_row(
+                "SELECT * FROM notes WHERE id = ?1",
+                params![id.0],
+                note_from_row,
+            )
             .map_err(|e| match e {
                 rusqlite::Error::QueryReturnedNoRows => CoreError::not_found("not"),
                 other => CoreError::Database(other),

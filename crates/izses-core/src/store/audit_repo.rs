@@ -89,9 +89,9 @@ impl Store {
 
     /// Bir incelemenin işlem geçmişini zaman sırasına göre döndürür.
     pub fn list_audit(&self, investigation_id: &Id) -> CoreResult<Vec<AuditEntry>> {
-        let mut stmt = self.conn().prepare(
-            "SELECT * FROM audit_log WHERE investigation_id = ?1 ORDER BY at, rowid",
-        )?;
+        let mut stmt = self
+            .conn()
+            .prepare("SELECT * FROM audit_log WHERE investigation_id = ?1 ORDER BY at, rowid")?;
         let rows = stmt.query_map(params![investigation_id.0], entry_from_row)?;
         let mut out = Vec::new();
         for r in rows {
@@ -101,7 +101,11 @@ impl Store {
     }
 
     /// Bir incelemenin işlem geçmişini ters sırada (en yeni önce) döndürür.
-    pub fn list_audit_recent(&self, investigation_id: &Id, limit: u32) -> CoreResult<Vec<AuditEntry>> {
+    pub fn list_audit_recent(
+        &self,
+        investigation_id: &Id,
+        limit: u32,
+    ) -> CoreResult<Vec<AuditEntry>> {
         let mut stmt = self.conn().prepare(
             "SELECT * FROM audit_log WHERE investigation_id = ?1 ORDER BY at DESC, rowid DESC LIMIT ?2",
         )?;

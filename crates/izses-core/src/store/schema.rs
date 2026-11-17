@@ -29,7 +29,10 @@ pub fn migrate(conn: &Connection) -> CoreResult<()> {
     }
 
     conn.execute("DELETE FROM schema_info", [])?;
-    conn.execute("INSERT INTO schema_info (version) VALUES (?1)", [SCHEMA_VERSION])?;
+    conn.execute(
+        "INSERT INTO schema_info (version) VALUES (?1)",
+        [SCHEMA_VERSION],
+    )?;
     Ok(())
 }
 

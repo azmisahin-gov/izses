@@ -1,5 +1,7 @@
 //! Geliştirme amaçlı örnek: PDF ve DOCX üretip diske yazar.
-use izses_report::{build_report, docx::export_docx, html::export_html, pdf::export_pdf, ReportInput};
+use izses_report::{
+    build_report, docx::export_docx, html::export_html, pdf::export_pdf, ReportInput,
+};
 
 fn main() {
     let mut inv = izses_core::model::Investigation::new();

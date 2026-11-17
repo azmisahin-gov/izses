@@ -7,7 +7,7 @@ use egui::RichText;
 
 use crate::app::{IzsesApp, NotificationKind, Screen, Tab};
 use crate::ui::{
-    audio_player, evidence, overview, report_screen, review, transcription_screen, theme, widgets,
+    audio_player, evidence, overview, report_screen, review, theme, transcription_screen, widgets,
 };
 
 /// Çalışma alanını çizer.
@@ -159,7 +159,10 @@ fn notes_placeholder(app: &mut IzsesApp, ui: &mut egui::Ui) {
 
     egui::Frame::new()
         .fill(egui::Color32::WHITE)
-        .stroke(egui::Stroke::new(1.0_f32, egui::Color32::from_rgb(214, 218, 224)))
+        .stroke(egui::Stroke::new(
+            1.0_f32,
+            egui::Color32::from_rgb(214, 218, 224),
+        ))
         .inner_margin(egui::Margin::same(12))
         .corner_radius(6.0)
         .show(ui, |ui| {
@@ -187,9 +190,7 @@ fn notes_placeholder(app: &mut IzsesApp, ui: &mut egui::Ui) {
             });
             ui.horizontal(|ui| {
                 ui.label("Başlık:");
-                ui.add(
-                    egui::TextEdit::singleline(&mut title).desired_width(f32::INFINITY),
-                );
+                ui.add(egui::TextEdit::singleline(&mut title).desired_width(f32::INFINITY));
             });
             ui.label("İçerik:");
             ui.add(
@@ -203,8 +204,8 @@ fn notes_placeholder(app: &mut IzsesApp, ui: &mut egui::Ui) {
             app.new_note_body = body;
 
             ui.add_space(4.0);
-            let can_add = !app.new_note_body.trim().is_empty()
-                || !app.new_note_title.trim().is_empty();
+            let can_add =
+                !app.new_note_body.trim().is_empty() || !app.new_note_title.trim().is_empty();
             if ui
                 .add_enabled(can_add, egui::Button::new("Notu Ekle"))
                 .clicked()
@@ -253,7 +254,10 @@ fn notes_placeholder(app: &mut IzsesApp, ui: &mut egui::Ui) {
     for note in &notes {
         egui::Frame::new()
             .fill(egui::Color32::WHITE)
-            .stroke(egui::Stroke::new(1.0_f32, egui::Color32::from_rgb(226, 230, 236)))
+            .stroke(egui::Stroke::new(
+                1.0_f32,
+                egui::Color32::from_rgb(226, 230, 236),
+            ))
             .inner_margin(egui::Margin::same(10))
             .corner_radius(4.0)
             .show(ui, |ui| {
@@ -264,10 +268,7 @@ fn notes_placeholder(app: &mut IzsesApp, ui: &mut egui::Ui) {
                         if ui.small_button("Sil").clicked() {
                             to_delete = Some(note.id.clone());
                         }
-                        theme::muted(
-                            ui,
-                            &izses_core::timefmt::format_datetime(&note.created_at),
-                        );
+                        theme::muted(ui, &izses_core::timefmt::format_datetime(&note.created_at));
                     });
                 });
                 ui.label(RichText::new(&note.body).size(12.5));

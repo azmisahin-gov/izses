@@ -62,7 +62,10 @@ pub fn acquire_file(
     local_relative: &Path,
 ) -> CoreResult<AcquisitionOutcome> {
     let safe_rel = safe_relative_path(local_relative)?;
-    let dest_dir = root.sub_dir(storage_key, izses_core::investigation::SubDir::OriginalFiles);
+    let dest_dir = root.sub_dir(
+        storage_key,
+        izses_core::investigation::SubDir::OriginalFiles,
+    );
     let dest_path = dest_dir.join(&safe_rel);
 
     if let Some(parent) = dest_path.parent() {
@@ -268,19 +271,25 @@ fn free_space(dir: &Path) -> Option<u64> {
 /// Uygulama ani kapandığında kalan `.kismi` dosyaları silinir; kayıtları
 /// `InProgress` durumunda bırakılmaz.
 pub fn clean_partial_files(root: &StorageRoot, storage_key: &str) -> CoreResult<usize> {
-    let dir = root.sub_dir(storage_key, izses_core::investigation::SubDir::OriginalFiles);
+    let dir = root.sub_dir(
+        storage_key,
+        izses_core::investigation::SubDir::OriginalFiles,
+    );
     if !dir.is_dir() {
         return Ok(0);
     }
     let mut removed = 0;
-    for entry in walkdir::WalkDir::new(&dir).into_iter().filter_map(Result::ok) {
+    for entry in walkdir::WalkDir::new(&dir)
+        .into_iter()
+        .filter_map(Result::ok)
+    {
         let path = entry.path();
         if path.is_file() {
             let name = path.to_string_lossy();
-            if name.ends_with(PARTIAL_SUFFIX) || name.ends_with(".kismi") {
-                if std::fs::remove_file(path).is_ok() {
-                    removed += 1;
-                }
+            if (name.ends_with(PARTIAL_SUFFIX) || name.ends_with(".kismi"))
+                && std::fs::remove_file(path).is_ok()
+            {
+                removed += 1;
             }
         }
     }
@@ -291,10 +300,7 @@ pub fn clean_partial_files(root: &StorageRoot, storage_key: &str) -> CoreResult<
 ///
 /// Bu işlev uygulama açılışında çağrılır. `InProgress` durumundaki kayıtlar
 /// `Failed` olarak işaretlenir; böylece başarılı aktarım gibi görünmezler.
-pub fn recover_incomplete_acquisitions(
-    store: &Store,
-    investigation_id: &Id,
-) -> CoreResult<usize> {
+pub fn recover_incomplete_acquisitions(store: &Store, investigation_id: &Id) -> CoreResult<usize> {
     let pending = store.find_incomplete_acquisitions(investigation_id)?;
     let mut count = 0;
     for mut file in pending {
@@ -326,7 +332,8 @@ mod tests {
         let mut inv = Investigation::new();
         inv.case_number = "2026/125".into();
         store.insert_investigation(&inv).unwrap();
-        root.create_investigation_layout(&inv.storage_key()).unwrap();
+        root.create_investigation_layout(&inv.storage_key())
+            .unwrap();
         let src = EvidenceSource::new(
             &inv.id,
             "USB",

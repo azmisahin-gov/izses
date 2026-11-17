@@ -65,22 +65,23 @@ pub fn build_report(input: &ReportInput<'_>) -> ReportResult<Report> {
         }
     );
 
-    let mut sections = Vec::new();
-    sections.push(section_assignment(inv));
-    sections.push(section_expert(inv));
-    sections.push(section_subject(input));
-    sections.push(section_questions(inv));
-    sections.push(section_sources(input));
-    sections.push(section_inventory(input));
-    sections.push(section_integrity(input));
-    sections.push(section_method(input));
-    sections.push(section_model(input));
-    sections.push(section_expert_edits(input));
-    sections.push(section_flagged(input));
-    sections.push(section_observations(input));
-    sections.push(section_history(input));
-    sections.push(section_expert_assessment(input));
-    sections.push(section_conclusion(input));
+    let sections = vec![
+        section_assignment(inv),
+        section_expert(inv),
+        section_subject(input),
+        section_questions(inv),
+        section_sources(input),
+        section_inventory(input),
+        section_integrity(input),
+        section_method(input),
+        section_model(input),
+        section_expert_edits(input),
+        section_flagged(input),
+        section_observations(input),
+        section_history(input),
+        section_expert_assessment(input),
+        section_conclusion(input),
+    ];
 
     let transcript_blocks = build_transcript_blocks(input);
     let checks = run_checks(input);
@@ -97,9 +98,12 @@ pub fn build_report(input: &ReportInput<'_>) -> ReportResult<Report> {
 
 fn section_assignment(inv: &izses_core::model::Investigation) -> Section {
     let mut s = Section::new("1. Görevlendiren Merci ve Dosya Bilgileri");
-    s.paragraphs.push(format!("Görevlendiren merci: {}", dash(&inv.court)));
     s.paragraphs
-        .push(format!("Dosya / soruşturma numarası: {}", dash(&inv.case_number)));
+        .push(format!("Görevlendiren merci: {}", dash(&inv.court)));
+    s.paragraphs.push(format!(
+        "Dosya / soruşturma numarası: {}",
+        dash(&inv.case_number)
+    ));
     s.paragraphs.push(format!(
         "Görevlendirme tarihi: {}",
         inv.assignment_date
@@ -254,9 +258,7 @@ fn section_integrity(input: &ReportInput<'_>) -> Section {
     for f in input.files {
         table.rows.push(vec![
             f.file_name(),
-            f.source_sha256
-                .clone()
-                .unwrap_or_else(|| "—".into()),
+            f.source_sha256.clone().unwrap_or_else(|| "—".into()),
             f.copy_sha256.clone().unwrap_or_else(|| "—".into()),
             f.verification.label_tr().to_string(),
         ]);
@@ -287,10 +289,8 @@ fn section_method(input: &ReportInput<'_>) -> Section {
 
 fn section_model(input: &ReportInput<'_>) -> Section {
     let mut s = Section::new("9. Kullanılan Otomatik Konuşma Çözümleme Modeli");
-    s.paragraphs.push(format!(
-        "Model: {}",
-        dash(&input.model_name)
-    ));
+    s.paragraphs
+        .push(format!("Model: {}", dash(&input.model_name)));
     if !input.model_revision.is_empty() {
         s.paragraphs
             .push(format!("Model sürümü / kaynağı: {}", input.model_revision));
@@ -315,9 +315,8 @@ fn section_expert_edits(input: &ReportInput<'_>) -> Section {
             }
         }
     }
-    s.paragraphs.push(format!(
-        "İncelenen toplam metin bölümü: {total}"
-    ));
+    s.paragraphs
+        .push(format!("İncelenen toplam metin bölümü: {total}"));
     s.paragraphs
         .push(format!("Bilirkişi tarafından düzeltilen bölüm: {edited}"));
     s
@@ -366,8 +365,12 @@ fn section_observations(input: &ReportInput<'_>) -> Section {
     for note in input.notes {
         if note.kind == NoteKind::Observation || note.kind == NoteKind::Technical {
             count += 1;
-            s.bullets
-                .push(format!("[{}] {}: {}", note.kind.label_tr(), note.title, note.body));
+            s.bullets.push(format!(
+                "[{}] {}: {}",
+                note.kind.label_tr(),
+                note.title,
+                note.body
+            ));
         }
     }
     if count == 0 {
@@ -380,7 +383,8 @@ fn section_observations(input: &ReportInput<'_>) -> Section {
 fn section_history(input: &ReportInput<'_>) -> Section {
     let mut s = Section::new("13. İnceleme Sırasında Yapılan İşlemlerin Özeti");
     if input.history_lines.is_empty() {
-        s.paragraphs.push("İşlem geçmişi kaydı bulunmamaktadır.".to_string());
+        s.paragraphs
+            .push("İşlem geçmişi kaydı bulunmamaktadır.".to_string());
     } else {
         for line in &input.history_lines {
             s.bullets.push(line.clone());
@@ -429,7 +433,10 @@ fn build_transcript_blocks(input: &ReportInput<'_>) -> Vec<TranscriptBlock> {
         blocks.push(TranscriptBlock {
             file_name: file.file_name(),
             source_label,
-            sha256: file.copy_sha256.clone().or_else(|| file.source_sha256.clone()),
+            sha256: file
+                .copy_sha256
+                .clone()
+                .or_else(|| file.source_sha256.clone()),
             duration_label: file
                 .audio
                 .as_ref()
@@ -495,11 +502,7 @@ pub fn run_checks(input: &ReportInput<'_>) -> Vec<ReportCheck> {
         if f.issue.is_some() {
             checks.push(ReportCheck {
                 severity: CheckSeverity::Warning,
-                message: format!(
-                    "{}: {}",
-                    f.file_name(),
-                    f.issue.clone().unwrap_or_default()
-                ),
+                message: format!("{}: {}", f.file_name(), f.issue.clone().unwrap_or_default()),
             });
         }
     }

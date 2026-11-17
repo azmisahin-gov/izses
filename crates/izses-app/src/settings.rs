@@ -104,9 +104,9 @@ impl Settings {
 
     /// Son açılan incelemeler listesine bir kaydı ekler.
     pub fn push_recent(&mut self, storage_key: &str) {
+        self.recent_investigations.retain(|k| k != storage_key);
         self.recent_investigations
-            .retain(|k| k != storage_key);
-        self.recent_investigations.insert(0, storage_key.to_string());
+            .insert(0, storage_key.to_string());
         self.recent_investigations.truncate(self.max_recent);
     }
 }
@@ -114,12 +114,17 @@ impl Settings {
 /// Gerekli klasörleri oluşturur.
 pub fn ensure_dirs(settings: &Settings) -> std::io::Result<()> {
     std::fs::create_dir_all(&settings.storage_root)?;
-    std::fs::create_dir_all(settings.storage_root.join(izses_core::investigation::INVESTIGATIONS_DIR))?;
+    std::fs::create_dir_all(
+        settings
+            .storage_root
+            .join(izses_core::investigation::INVESTIGATIONS_DIR),
+    )?;
     std::fs::create_dir_all(&settings.model_root)?;
     Ok(())
 }
 
 #[cfg(test)]
+#[allow(clippy::field_reassign_with_default)]
 mod tests {
     use super::*;
 

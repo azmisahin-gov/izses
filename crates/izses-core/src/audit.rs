@@ -138,11 +138,7 @@ pub struct AuditEntry {
 }
 
 impl AuditEntry {
-    pub fn new(
-        investigation_id: &Id,
-        kind: ActionKind,
-        summary: impl Into<String>,
-    ) -> Self {
+    pub fn new(investigation_id: &Id, kind: ActionKind, summary: impl Into<String>) -> Self {
         Self {
             id: Id::new(),
             investigation_id: investigation_id.clone(),

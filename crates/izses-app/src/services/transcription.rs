@@ -9,16 +9,16 @@ use std::sync::Arc;
 
 use chrono::Utc;
 use izses_asr::model_store::{ModelSpec, ModelStore};
-use izses_asr::transcriber::{CancelToken, ComputeDevice, Progress, TranscriberConfig, TranscriptEngine};
+use izses_asr::transcriber::{
+    CancelToken, ComputeDevice, Progress, TranscriberConfig, TranscriptEngine,
+};
 use izses_core::audit::{ActionKind, AuditEntry};
 use izses_core::error::{CoreError, CoreResult};
 use izses_core::inventory::EvidenceFile;
-use izses_core::investigation::{SubDir, StorageRoot};
+use izses_core::investigation::{StorageRoot, SubDir};
 use izses_core::model::Id;
 use izses_core::store::Store;
-use izses_core::transcript::{
-    Transcript, TranscriptSegment, TranscriptStatus,
-};
+use izses_core::transcript::{Transcript, TranscriptSegment, TranscriptStatus};
 
 /// Arka plan işçisine gönderilen komutlar.
 #[derive(Debug)]
@@ -184,10 +184,7 @@ fn run_worker(
     let state = model_store.check_present(spec);
     if !state.is_ready() {
         let _ = events.send(Event::Fatal {
-            error: format!(
-                "Konuşma çözümleme modeli hazır değil. {}",
-                state.label_tr()
-            ),
+            error: format!("Konuşma çözümleme modeli hazır değil. {}", state.label_tr()),
         });
         return;
     }
@@ -300,13 +297,11 @@ fn transcribe_one(
     cancel: &CancelToken,
     commands: &Receiver<Command>,
 ) -> Result<u32, WorkerError> {
-    let file_path = root
-        .sub_dir(storage_key, SubDir::OriginalFiles)
-        .join(
-            item.local_path
-                .strip_prefix(SubDir::OriginalFiles.name())
-                .unwrap_or(&item.local_path),
-        );
+    let file_path = root.sub_dir(storage_key, SubDir::OriginalFiles).join(
+        item.local_path
+            .strip_prefix(SubDir::OriginalFiles.name())
+            .unwrap_or(&item.local_path),
+    );
 
     // Deşifre kaydını oluştur veya mevcut olanı al.
     let mut transcript = {
@@ -365,7 +360,10 @@ fn transcribe_one(
             s.insert_audit(&AuditEntry::new(
                 investigation_id,
                 ActionKind::TranscriptStarted,
-                format!("{}: deşifre başladı ({} parça)", item.file_name, total_chunks),
+                format!(
+                    "{}: deşifre başladı ({} parça)",
+                    item.file_name, total_chunks
+                ),
             ))?;
         }
     }
@@ -429,7 +427,11 @@ fn transcribe_one(
             let _ = s.insert_audit(&AuditEntry::new(
                 &inv_for_cb,
                 ActionKind::TranscriptSegmentCompleted,
-                format!("{file_name}: parça {}/{} tamamlandı", chunk_index + 1, total_chunks),
+                format!(
+                    "{file_name}: parça {}/{} tamamlandı",
+                    chunk_index + 1,
+                    total_chunks
+                ),
             ));
             Ok(())
         },
@@ -510,9 +512,9 @@ pub fn pending_audio_items(store: &Store, investigation_id: &Id) -> CoreResult<V
         if !file.is_verified() {
             continue;
         }
-        let done = transcripts.iter().any(|t| {
-            t.evidence_file_id == file.id && t.status == TranscriptStatus::Completed
-        });
+        let done = transcripts
+            .iter()
+            .any(|t| t.evidence_file_id == file.id && t.status == TranscriptStatus::Completed);
         if done {
             continue;
         }
@@ -643,7 +645,10 @@ mod tests {
         store.upsert_transcript(&t).unwrap();
 
         let items = pending_audio_items(&store, &inv_id).unwrap();
-        assert!(items.is_empty(), "tamamlanan dosya tekrar kuyruğa girmemeli");
+        assert!(
+            items.is_empty(),
+            "tamamlanan dosya tekrar kuyruğa girmemeli"
+        );
     }
 
     #[test]

@@ -64,8 +64,7 @@ fn storage_section(app: &mut IzsesApp, ui: &mut egui::Ui) {
 
         ui.horizontal(|ui| {
             if ui.button("Kaydet ve Klasörleri Hazırla").clicked() {
-                match crate::settings::ensure_dirs(&app.settings)
-                    .and_then(|_| app.settings.save())
+                match crate::settings::ensure_dirs(&app.settings).and_then(|_| app.settings.save())
                 {
                     Ok(()) => {
                         app.notify(NotificationKind::Success, "Ayarlar kaydedildi");
@@ -196,10 +195,7 @@ fn app_section(app: &mut IzsesApp, ui: &mut egui::Ui) {
 
         ui.horizontal(|ui| {
             if ui
-                .checkbox(
-                    &mut app.settings.timestamps,
-                    "Deşifrede zaman damgası üret",
-                )
+                .checkbox(&mut app.settings.timestamps, "Deşifrede zaman damgası üret")
                 .changed()
             {
                 let _ = app.settings.save();
@@ -227,7 +223,10 @@ fn language_label(code: &str) -> &'static str {
 fn card(ui: &mut egui::Ui, contents: impl FnOnce(&mut egui::Ui)) {
     egui::Frame::new()
         .fill(egui::Color32::WHITE)
-        .stroke(egui::Stroke::new(1.0_f32, egui::Color32::from_rgb(214, 218, 224)))
+        .stroke(egui::Stroke::new(
+            1.0_f32,
+            egui::Color32::from_rgb(214, 218, 224),
+        ))
         .inner_margin(egui::Margin::same(12))
         .corner_radius(6.0)
         .show(ui, contents);

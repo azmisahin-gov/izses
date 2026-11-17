@@ -52,14 +52,30 @@ pub fn show(app: &mut IzsesApp, ui: &mut egui::Ui) {
             theme::subheading(ui, "İşlem Durumu");
             ui.add_space(4.0);
 
-            progress_row(ui, "Dosya doğrulama", progress.verification_fraction(),
-                &format!("{}/{}", progress.verified_files, progress.total_files));
-            progress_row(ui, "Otomatik deşifre", progress.transcription_fraction(),
-                &format!("{}/{}", progress.transcribed_files, progress.audio_files));
+            progress_row(
+                ui,
+                "Dosya doğrulama",
+                progress.verification_fraction(),
+                &format!("{}/{}", progress.verified_files, progress.total_files),
+            );
+            progress_row(
+                ui,
+                "Otomatik deşifre",
+                progress.transcription_fraction(),
+                &format!("{}/{}", progress.transcribed_files, progress.audio_files),
+            );
 
             ui.add_space(6.0);
-            theme::key_value(ui, "Toplam metin bölümü", &progress.total_segments.to_string());
-            theme::key_value(ui, "Düzeltilen bölüm", &progress.edited_segments.to_string());
+            theme::key_value(
+                ui,
+                "Toplam metin bölümü",
+                &progress.total_segments.to_string(),
+            );
+            theme::key_value(
+                ui,
+                "Düzeltilen bölüm",
+                &progress.edited_segments.to_string(),
+            );
             theme::key_value(ui, "İşaretli bölüm", &progress.flagged_segments.to_string());
 
             ui.add_space(8.0);
@@ -72,7 +88,11 @@ pub fn show(app: &mut IzsesApp, ui: &mut egui::Ui) {
             } else {
                 theme::subheading(ui, "Dikkat Gerektiren İşler");
                 for item in &outstanding {
-                    ui.label(RichText::new(format!("• {item}")).size(12.5).color(theme::WARNING));
+                    ui.label(
+                        RichText::new(format!("• {item}"))
+                            .size(12.5)
+                            .color(theme::WARNING),
+                    );
                 }
             }
         });
@@ -123,10 +143,7 @@ pub fn show(app: &mut IzsesApp, ui: &mut egui::Ui) {
         } else {
             for entry in &history {
                 ui.horizontal(|ui| {
-                    theme::muted(
-                        ui,
-                        &izses_core::timefmt::format_datetime(&entry.at),
-                    );
+                    theme::muted(ui, &izses_core::timefmt::format_datetime(&entry.at));
                     ui.label(RichText::new(entry.kind.label_tr()).size(12.5).strong());
                     ui.label(RichText::new(&entry.summary).size(12.0));
                 });
@@ -155,10 +172,7 @@ pub fn show(app: &mut IzsesApp, ui: &mut egui::Ui) {
                     let result = {
                         let store_arc = app.store_handle();
                         let store = store_arc.lock().unwrap();
-                        app.session
-                            .as_mut()
-                            .unwrap()
-                            .set_status(&store, status)
+                        app.session.as_mut().unwrap().set_status(&store, status)
                     };
                     match result {
                         Ok(()) => {
@@ -234,7 +248,10 @@ fn dash(s: &str) -> String {
 fn card(ui: &mut egui::Ui, contents: impl FnOnce(&mut egui::Ui)) {
     egui::Frame::new()
         .fill(egui::Color32::WHITE)
-        .stroke(egui::Stroke::new(1.0_f32, egui::Color32::from_rgb(214, 218, 224)))
+        .stroke(egui::Stroke::new(
+            1.0_f32,
+            egui::Color32::from_rgb(214, 218, 224),
+        ))
         .inner_margin(egui::Margin::same(12))
         .corner_radius(6.0)
         .show(ui, contents);

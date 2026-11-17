@@ -154,7 +154,11 @@ fn build_document_xml(report: &Report) -> String {
                 block.sha256.clone().unwrap_or_else(|| "—".into())
             )));
             for seg in &block.segments {
-                let marker = if seg.is_edited() { " (düzeltildi)" } else { "" };
+                let marker = if seg.is_edited() {
+                    " (düzeltildi)"
+                } else {
+                    ""
+                };
                 let speaker = seg
                     .speaker
                     .as_ref()
@@ -343,10 +347,7 @@ mod tests {
             "word/styles.xml",
             "word/_rels/document.xml.rels",
         ] {
-            assert!(
-                archive.by_name(required).is_ok(),
-                "eksik parça: {required}"
-            );
+            assert!(archive.by_name(required).is_ok(), "eksik parça: {required}");
         }
 
         // document.xml geçerli XML olmalı ve başlığı içermeli.

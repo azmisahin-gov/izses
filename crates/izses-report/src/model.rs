@@ -53,7 +53,11 @@ impl Section {
     pub fn is_empty(&self) -> bool {
         self.paragraphs.is_empty()
             && self.bullets.is_empty()
-            && self.table.as_ref().map(|t| t.rows.is_empty()).unwrap_or(true)
+            && self
+                .table
+                .as_ref()
+                .map(|t| t.rows.is_empty())
+                .unwrap_or(true)
     }
 }
 

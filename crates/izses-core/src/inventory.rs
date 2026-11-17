@@ -126,9 +126,7 @@ pub fn scan_source(root: &Path, opts: &ScanOptions) -> CoreResult<Vec<ScannedFil
     let walker = if opts.recursive {
         walkdir::WalkDir::new(root).follow_links(false)
     } else {
-        walkdir::WalkDir::new(root)
-            .max_depth(1)
-            .follow_links(false)
+        walkdir::WalkDir::new(root).max_depth(1).follow_links(false)
     };
 
     for entry in walker.into_iter().filter_map(Result::ok) {
@@ -293,6 +291,7 @@ pub fn file_digest(path: &Path) -> CoreResult<String> {
 }
 
 #[cfg(test)]
+#[allow(clippy::field_reassign_with_default)]
 mod tests {
     use super::*;
 
