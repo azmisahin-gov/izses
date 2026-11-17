@@ -1,0 +1,19 @@
+[package]
+name = "izses-audio"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[dependencies]
+izses-core = { path = "../izses-core" }
+anyhow.workspace = true
+thiserror.workspace = true
+serde.workspace = true
+symphonia = { version = "0.5.5", default-features = false, features = [
+    "mp3", "aac", "flac", "ogg", "vorbis", "wav", "pcm", "isomp4", "alac", "caf", "aiff", "adpcm",
+] }
+hound = "3.5"
+
+[dev-dependencies]
+tempfile.workspace = true
