@@ -1,3 +1,15 @@
+# Geliştirme ortamına özgü derleme ayarları.
+#
+# Buradaki tek ayar, Linux geliştirme ortamında Windows hedefinin
+# derlenebilmesi içindir. Gerçek Windows kurulum paketi
+# `x86_64-pc-windows-msvc` hedefiyle derlenir ve bu ayardan etkilenmez.
+#
+# Windows üzerinde geliştirme yapıyorsanız bu dosyayı yok sayabilirsiniz:
+# MSVC hedefi kendi bağlayıcısını kullanır.
+#
+# Linux'ta çapraz derleme için Debian'ın mingw-w64 araç zinciri gerekir
+# (bkz. AGENTS.md). Araçlar PATH'te yoksa bu hedef derlenmez; diğer tüm
+# hedefler etkilenmez.
 [target.x86_64-pc-windows-gnu]
 linker = "x86_64-w64-mingw32-gcc"
 ar = "x86_64-w64-mingw32-ar"
