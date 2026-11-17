@@ -36,6 +36,11 @@ rfd = "0.15"
 rodio = { version = "0.20", default-features = false, features = [
     "symphonia-all", "wav", "mp3", "flac", "vorbis", "symphonia-isomp4",
 ] }
+windows-sys = { version = "0.59", features = [
+    "Win32_Foundation",
+    "Win32_Storage_FileSystem",
+] }
 
 [dev-dependencies]
 tempfile.workspace = true
+hound = "3.5"

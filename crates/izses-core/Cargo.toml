@@ -18,3 +18,10 @@ walkdir.workspace = true
 
 [dev-dependencies]
 tempfile.workspace = true
+
+# Windows'a özgü aygıt keşfi (birim harfleri, kapasite, dosya sistemi).
+[target.'cfg(windows)'.dependencies]
+windows-sys = { version = "0.59", features = [
+    "Win32_Foundation",
+    "Win32_Storage_FileSystem",
+] }

@@ -2215,6 +2215,7 @@ dependencies = [
  "eframe",
  "egui",
  "hex",
+ "hound",
  "izses-asr",
  "izses-audio",
  "izses-core",
@@ -2228,6 +2229,7 @@ dependencies = [
  "tracing",
  "tracing-subscriber",
  "walkdir",
+ "windows-sys 0.59.0",
  "zip 2.6.1",
 ]
 
@@ -2277,6 +2279,7 @@ dependencies = [
  "thiserror 2.0.21",
  "uuid",
  "walkdir",
+ "windows-sys 0.59.0",
 ]
 
 [[package]]
@@ -3131,28 +3134,6 @@ name = "once_cell"
 version = "1.21.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9f7c3e4beb33f85d45ae3e3a1792185706c8e16d043238c593331cc7cd313b50"
-
-[[package]]
-name = "onig"
-version = "6.5.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0cc3cbf698f9438986c11a880c90a6d04b9de27575afd28bbf45b154b6c709e2"
-dependencies = [
- "bitflags 2.13.2",
- "libc",
- "once_cell",
- "onig_sys",
-]
-
-[[package]]
-name = "onig_sys"
-version = "69.9.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1e68317604e77e53b85896388e1a803c1d21b74c899ec9e5e1112db90735edd7"
-dependencies = [
- "cc",
- "pkg-config",
-]
 
 [[package]]
 name = "orbclient"
@@ -4366,7 +4347,6 @@ dependencies = [
  "log",
  "macro_rules_attribute",
  "monostate",
- "onig",
  "paste",
  "rand",
  "rayon",
