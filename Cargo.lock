@@ -2242,6 +2242,7 @@ dependencies = [
  "candle-nn",
  "candle-transformers",
  "hex",
+ "izses-audio",
  "izses-core",
  "rand",
  "serde",

@@ -413,8 +413,11 @@ impl TranscriptEngine {
                 continue;
             }
             if token > self.no_timestamps_token {
-                // Zaman damgası tokeni.
-                let ts_s = (token - self.no_timestamps_token) as f32 / 50.0;
+                // Zaman damgası tokeni. Değeri parça süresini aşarsa kırp;
+                // model yanlış dilde çalıştığında bu olabilir.
+                let ts_s = ((token - self.no_timestamps_token) as f32 / 50.0)
+                    .min(segment_duration_s as f32)
+                    .max(prev_ts_s);
                 flush(&mut pending, prev_ts_s, ts_s, out)?;
                 prev_ts_s = ts_s;
             } else {

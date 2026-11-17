@@ -23,6 +23,7 @@ byteorder = "1"
 
 [dev-dependencies]
 tempfile.workspace = true
+izses-audio = { path = "../izses-audio" }
 
 [features]
 default = []
