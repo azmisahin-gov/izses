@@ -4,7 +4,7 @@ use chrono::{DateTime, NaiveDate, Utc};
 use rusqlite::{params, Row};
 
 use crate::error::{CoreError, CoreResult};
-use crate::model::{Id, Investigation, InvestigationStatus, Party};
+use crate::model::{Id, Investigation, InvestigationStatus};
 use crate::store::Store;
 use crate::timefmt;
 
@@ -33,6 +33,7 @@ fn row_to_investigation(row: &Row<'_>) -> rusqlite::Result<Investigation> {
         expert_registry_no: row.get("expert_registry_no")?,
         expertise_field: row.get("expertise_field")?,
         questions: serde_json::from_str(&questions_json).unwrap_or_default(),
+        storage_key: row.get("storage_key")?,
         scope_notes: row.get("scope_notes")?,
         status: InvestigationStatus::from_str_opt(&status_str).unwrap_or(InvestigationStatus::Draft),
         created_at: parse_dt(row.get("created_at")?).unwrap_or_else(Utc::now),
@@ -203,17 +204,17 @@ impl Store {
     }
 }
 
-/// Yeni inceleme oluştururken taraf bilgisi eklemek için yardımcı.
-pub fn party(role: impl Into<String>, name: impl Into<String>) -> Party {
-    Party {
-        role: role.into(),
-        name: name.into(),
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::model::Party;
+
+    fn party(role: impl Into<String>, name: impl Into<String>) -> Party {
+        Party {
+            role: role.into(),
+            name: name.into(),
+        }
+    }
 
     fn sample() -> Investigation {
         let mut inv = Investigation::new();

@@ -7,8 +7,6 @@ license.workspace = true
 
 [dependencies]
 izses-core = { path = "../izses-core" }
-izses-audio = { path = "../izses-audio" }
-anyhow.workspace = true
 thiserror.workspace = true
 serde.workspace = true
 serde_json.workspace = true

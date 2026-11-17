@@ -100,6 +100,11 @@ pub struct Investigation {
     pub expertise_field: String,
     /// Görevlendirme yazısındaki sorular.
     pub questions: Vec<String>,
+    /// Yerel depolama klasörü anahtarı.
+    ///
+    /// İnceleme oluşturulurken bir kez atanır ve sonradan değiştirilmez;
+    /// böylece dosya numarası değişse bile veriler yerinde kalır.
+    pub storage_key: String,
     /// İnceleme kapsamı notları.
     pub scope_notes: String,
     pub status: InvestigationStatus,
@@ -123,6 +128,7 @@ impl Investigation {
             expert_registry_no: String::new(),
             expertise_field: "56.12 – Ses Kayıtlarının Metin Hâline Dönüştürülmesi".to_string(),
             questions: Vec::new(),
+            storage_key: String::new(),
             scope_notes: String::new(),
             status: InvestigationStatus::Draft,
             created_at: now,
@@ -132,10 +138,19 @@ impl Investigation {
 
     /// Depolama klasörü adı olarak kullanılabilecek güvenli kimlik.
     ///
-    /// Dosya numarasındaki `/` ve benzeri karakterler dosya sisteminde
-    /// klasör ayıracı olarak yorumlanmamalıdır.
+    /// Atanmış bir anahtar varsa o kullanılır; yoksa dosya numarasından
+    /// türetilir. Dosya numarasındaki `/` ve benzeri karakterler dosya
+    /// sisteminde klasör ayıracı olarak yorumlanmamalıdır.
     pub fn storage_key(&self) -> String {
+        if !self.storage_key.is_empty() {
+            return self.storage_key.clone();
+        }
         sanitize_storage_key(&self.case_number, &self.id.0)
+    }
+
+    /// Depolama anahtarını bir kez atar.
+    pub fn assign_storage_key(&mut self, key: impl Into<String>) {
+        self.storage_key = key.into();
     }
 
     /// Rapor ve arayüzde gösterilecek kısa başlık.
@@ -247,6 +262,15 @@ mod tests {
     fn storage_key_keeps_alphanumerics() {
         assert_eq!(sanitize_storage_key("2026-125", "x"), "2026-125");
         assert_eq!(sanitize_storage_key("A.B:C", "x"), "A-B-C");
+    }
+
+    #[test]
+    fn assigned_storage_key_takes_precedence() {
+        let mut inv = Investigation::new();
+        inv.case_number = "2026/125".into();
+        assert_eq!(inv.storage_key(), "2026-125");
+        inv.assign_storage_key("2026-125-2");
+        assert_eq!(inv.storage_key(), "2026-125-2");
     }
 
     #[test]

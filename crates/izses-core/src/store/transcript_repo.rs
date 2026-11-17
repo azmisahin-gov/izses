@@ -7,9 +7,7 @@ use crate::error::{CoreError, CoreResult};
 use crate::model::Id;
 use crate::store::Store;
 use crate::timefmt;
-use crate::transcript::{
-    SegmentFlags, SegmentRevision, Transcript, TranscriptSegment, TranscriptStatus,
-};
+use crate::transcript::{SegmentRevision, Transcript, TranscriptSegment, TranscriptStatus};
 
 fn parse_dt(s: Option<String>) -> Option<DateTime<Utc>> {
     s.and_then(|s| timefmt::parse_iso(&s))
@@ -397,11 +395,6 @@ impl Store {
         }
         Ok(())
     }
-}
-
-/// Bölüm bayraklarını JSON'a çevirir (testler için).
-pub fn flags_to_json(flags: &SegmentFlags) -> String {
-    serde_json::to_string(flags).unwrap_or_else(|_| "{}".to_string())
 }
 
 #[cfg(test)]
